@@ -1,0 +1,25 @@
+services:
+  python-sandbox:
+    image: stellar-python-sandbox:3.12
+    container_name: python-sandbox
+    restart: unless-stopped
+    networks:
+      - codegen-network
+
+  cpp-sandbox:
+    image: stellar-cpp-sandbox:latest
+    container_name: cpp-sandbox
+    restart: unless-stopped
+    networks:
+      - codegen-network
+
+  java-sandbox:
+    image: stellar-java-sandbox:latest
+    container_name: java-sandbox
+    restart: unless-stopped
+    networks:
+      - codegen-network
+
+networks:
+  codegen-network:
+    driver: bridge

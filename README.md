@@ -1,212 +1,142 @@
-# Stellar CodeGen AI
+# @vitejs/plugin-react [![npm](https://img.shields.io/npm/v/@vitejs/plugin-react.svg)](https://npmjs.com/package/@vitejs/plugin-react)
 
-An intelligent web application that transforms natural language descriptions into executable code using Google's Gemini AI.
+The default Vite plugin for React projects.
 
-![Stellar CodeGen AI](https://img.shields.io/badge/React-18.2.0-blue) ![Flask](https://img.shields.io/badge/Flask-2.3.3-green) ![Docker](https://img.shields.io/badge/Docker-Enabled-blue) ![License](https://img.shields.io/badge/License-MIT-green)
+- enable [Fast Refresh](https://www.npmjs.com/package/react-refresh) in development (requires react >= 16.9)
+- use the [automatic JSX runtime](https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html)
+- use custom Babel plugins/presets
+- small installation size
 
-## 🌟 Features
+```js
+// vite.config.js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-- **AI-Powered Code Generation**: Convert natural language prompts to executable code
-- **Multi-Language Support**: Python, HTML/CSS/JS, C++, Java
-- **Secure Execution**: Docker container isolation for code execution
-- **File Upload & Analysis**: Process and visualize data files
-- **Live Preview**: Real-time output display
-- **Interactive Interface**: Chat-style communication with status updates
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Docker and Docker Compose
-- Google Gemini API key
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/stellar-codegen-ai.git
-   cd stellar-codegen-ai
-   ```
-
-2. **Set up environment variables**
-   ```bash
-   # Create backend/.env file
-   echo "GOOGLE_API_KEY=your_google_gemini_api_key_here" > backend/.env
-   echo "FLASK_ENV=development" >> backend/.env
-   ```
-
-3. **Build and run with Docker**
-   ```bash
-   docker-compose up --build
-   ```
-
-4. **Access the application**
-   Open http://localhost:3000 in your browser
-
-## 🛠️ Manual Setup
-
-### Backend (Flask)
-
-1. Navigate to backend directory
-   ```bash
-   cd backend
-   ```
-
-2. Create virtual environment and install dependencies
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-
-3. Set environment variable
-   ```bash
-   export GOOGLE_API_KEY=your_google_gemini_api_key_here
-   ```
-
-4. Run the Flask server
-   ```bash
-   python app.py
-   ```
-
-### Frontend (React)
-
-1. Navigate to frontend directory
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies
-   ```bash
-   npm install
-   ```
-
-3. Start development server
-   ```bash
-   npm run dev
-   ```
-
-## 📁 Project Structure
-
-```
-stellar-codegen-ai/
-├── backend/                 # Flask application
-│   ├── app.py              # Main application file
-│   ├── requirements.txt    # Python dependencies
-│   ├── .env               # Environment variables
-│   └── uploads/           # File upload directory
-├── frontend/              # React application
-│   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── hooks/         # Custom hooks
-│   │   └── styles/        # CSS files
-│   ├── package.json       # Node dependencies
-│   └── vite.config.js     # Vite configuration
-├── sandboxes/             # Docker sandbox configurations
-│   ├── Dockerfile.python  # Python execution environment
-│   ├── Dockerfile.cpp     # C++ execution environment
-│   └── Dockerfile.java    # Java execution environment
-└── docker-compose.yml     # Multi-container setup
+export default defineConfig({
+  plugins: [react()],
+})
 ```
 
-## 🔧 Configuration
+## Options
 
-### Environment Variables
+### include/exclude
 
-**Backend (.env)**
-```
-GOOGLE_API_KEY=your_google_gemini_api_key
-FLASK_ENV=development
-```
+Includes `.js`, `.jsx`, `.ts` & `.tsx` by default. This option can be used to add fast refresh to `.mdx` files:
 
-**Frontend (.env)**
-```
-VITE_API_URL=http://localhost:5000
-```
+```js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import mdx from '@mdx-js/rollup'
 
-### Obtaining Google Gemini API Key
-
-1. Visit [Google AI Studio](https://aistudio.google.com/)
-2. Sign in with your Google account
-3. Create an API key in the API section
-4. Add it to your backend/.env file
-
-## 🐳 Docker Setup
-
-### Build Sandbox Images
-
-```bash
-# Build Python sandbox
-docker build -t stellar-python-sandbox:3.12 -f sandboxes/Dockerfile.python .
-
-# Build C++ sandbox
-docker build -t stellar-cpp-sandbox:latest -f sandboxes/Dockerfile.cpp .
-
-# Build Java sandbox
-docker build -t stellar-java-sandbox:latest -f sandboxes/Dockerfile.java .
+export default defineConfig({
+  plugins: [
+    { enforce: 'pre', ...mdx() },
+    react({ include: /\.(mdx|js|jsx|ts|tsx)$/ }),
+  ],
+})
 ```
 
-### Start Sandbox Containers
+> `node_modules` are never processed by this plugin (but esbuild will)
 
-```bash
-docker run -d --name python-sandbox stellar-python-sandbox:3.12
-docker run -d --name cpp-sandbox stellar-cpp-sandbox:latest
-docker run -d --name java-sandbox stellar-java-sandbox:latest
+### jsxImportSource
+
+Control where the JSX factory is imported from. Default to `'react'`
+
+```js
+react({ jsxImportSource: '@emotion/react' })
 ```
 
-## 💡 Usage
+### jsxRuntime
 
-1. **Enter a prompt** describing the code you want to generate
-2. **Select a programming language** from the dropdown
-3. **Optionally upload a file** for data analysis
-4. **Click Generate** and watch as your code is created and executed
-5. **View the results** in the output panel and copy or download the code
+By default, the plugin uses the [automatic JSX runtime](https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html). However, if you encounter any issues, you may opt out using the `jsxRuntime` option.
 
-### Example Prompts
+```js
+react({ jsxRuntime: 'classic' })
+```
 
-- "Create a Python function to calculate Fibonacci sequence"
-- "Generate a bar chart from CSV data showing sales by month"
-- "Make a responsive login form with HTML and CSS"
-- "Write a C++ program to sort an array using quicksort"
+### babel
 
-## 🛡️ Security Features
+The `babel` option lets you add plugins, presets, and [other configuration](https://babeljs.io/docs/en/options) to the Babel transformation performed on each included file.
 
-- Code execution in isolated Docker containers
-- Timeout limits on execution
-- Resource constraints on sandbox environments
-- Input validation and sanitization
+```js
+react({
+  babel: {
+    presets: [...],
+    // Your plugins run before any built-in transform (eg: Fast Refresh)
+    plugins: [...],
+    // Use .babelrc files
+    babelrc: true,
+    // Use babel.config.js files
+    configFile: true,
+  }
+})
+```
 
-## 🤝 Contributing
+Note: When not using plugins, only esbuild is used for production builds, resulting in faster builds.
 
-We welcome contributions! Please feel free to submit issues, feature requests, or pull requests.
+#### Proposed syntax
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+If you are using ES syntax that are still in proposal status (e.g. class properties), you can selectively enable them with the `babel.parserOpts.plugins` option:
 
-## 📝 License
+```js
+react({
+  babel: {
+    parserOpts: {
+      plugins: ['decorators-legacy'],
+    },
+  },
+})
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This option does not enable _code transformation_. That is handled by esbuild.
 
-## 🆘 Support
+**Note:** TypeScript syntax is handled automatically.
 
-If you encounter any issues:
+Here's the [complete list of Babel parser plugins](https://babeljs.io/docs/en/babel-parser#ecmascript-proposalshttpsgithubcombabelproposals).
 
-1. Check that Docker is running
-2. Verify your Google API key is valid
-3. Ensure all required ports (3000, 5000) are available
-4. Check the browser console and Flask server logs for errors
+### reactRefreshHost
 
-For additional support, please open an issue on GitHub.
+The `reactRefreshHost` option is only necessary in a module federation context. It enables HMR to work between a remote & host application. In your remote Vite config, you would add your host origin:
 
-## 🙏 Acknowledgments
+```js
+react({ reactRefreshHost: 'http://localhost:3000' })
+```
 
-- Google Gemini AI for code generation capabilities
-- React and Flask communities for excellent frameworks
-- Docker for containerization technology
+Under the hood, this simply updates the React Fash Refresh runtime URL from `/@react-refresh` to `http://localhost:3000/@react-refresh` to ensure there is only one Refresh runtime across the whole application. Note that if you define `base` option in the host application, you need to include it in the option, like: `http://localhost:3000/{base}`.
 
----
+## Middleware mode
 
-**Transform your ideas into code with Stellar CodeGen AI!**
+In [middleware mode](https://vite.dev/config/server-options.html#server-middlewaremode), you should make sure your entry `index.html` file is transformed by Vite. Here's an example for an Express server:
+
+```js
+app.get('/', async (req, res, next) => {
+  try {
+    let html = fs.readFileSync(path.resolve(root, 'index.html'), 'utf-8')
+
+    // Transform HTML using Vite plugins.
+    html = await viteServer.transformIndexHtml(req.url, html)
+
+    res.send(html)
+  } catch (e) {
+    return next(e)
+  }
+})
+```
+
+Otherwise, you'll probably get this error:
+
+```
+Uncaught Error: @vitejs/plugin-react can't detect preamble. Something is wrong.
+```
+
+### disableOxcRecommendation
+
+If set, disables the recommendation to use `@vitejs/plugin-react-oxc` (which is shown when `rolldown-vite` is detected and `babel` is not configured).
+
+## Consistent components exports
+
+For React refresh to work correctly, your file should only export React components. You can find a good explanation in the [Gatsby docs](https://www.gatsbyjs.com/docs/reference/local-development/fast-refresh/#how-it-works).
+
+If an incompatible change in exports is found, the module will be invalidated and HMR will propagate. To make it easier to export simple constants alongside your component, the module is only invalidated when their value changes.
+
+You can catch mistakes and get more detailed warning with this [eslint rule](https://github.com/ArnaudBarre/eslint-plugin-react-refresh).
